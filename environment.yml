@@ -1,0 +1,11 @@
+name: deep-tennis 
+channels:
+  - pytorch
+dependencies:
+  - python=3.6
+  - ipython
+  - numpy
+  - jupyter
+  - pandas
+  - pytorch
+  - torchvision
