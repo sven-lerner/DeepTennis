@@ -1,7 +1,7 @@
 import numpy as np
 from models.tennis_lstm import TennisLSTM
 from models.loss_functions import weighted_loss
-
+import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -12,21 +12,23 @@ torch.manual_seed(1)
 
 model = TennisLSTM(input_dim=22, hidden_dim=50, batch_size=1, output_dim=1, num_layers=2)
 
-loader = YearOpenSplitLoader(train_slam_years=['2011-ausopen', '2011-frenchopen', '2011-usopen',
-											   # '2012-ausopen', '2012-frenchopen', '2012-usopen', '2012-wimbledon',
-											   # '2013-ausopen', '2013-frenchopen', '2013-usopen', '2013-wimbledon',
-											   ], test_slam_years=['2011-wimbledon'])
+loader = YearOpenSplitLoader(train_slam_years=['2011-ausopen', '2011-frenchopen', '2011-usopen', '2011-wimbledon',
+											   '2012-ausopen', '2012-frenchopen', '2012-usopen', '2012-wimbledon',
+											   '2013-ausopen', '2013-frenchopen', '2013-usopen', '2013-wimbledon',
+											   ], 
+							test_slam_years=['2014-ausopen', '2014-frenchopen', '2014-usopen', '2014-wimbledon'])
 print(f'training on {len(loader.get_train_data())} matches')
 
 num_epochs = 10
 
-optimizer = torch.optim.Adam(model.parameters(), lr=0.005)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
 hist = np.zeros(num_epochs)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f'torch device is {device}')
 loss_fn = weighted_loss
 
 for epoch in range(num_epochs):
+    epoch_start = time.time()
     losses = []
     # Forward pass
     print(f'epoch {epoch}')
@@ -44,6 +46,8 @@ for epoch in range(num_epochs):
             model.zero_grad()
             optimizer.zero_grad()       
         losses.append(loss.data.numpy())
-        
     print(f'epoch {epoch} avg loss {np.mean(losses)}')
+    print(f'epoch {epoch} took {(time.time() - epoch_start)/60.0} minutes')
+    eval_start_time = time.time()
     get_interval_success_rates(model, loader, device)
+    print(f'epoch {epoch} eval took {(time.time() - eval_start_time)/60.0} minutes')

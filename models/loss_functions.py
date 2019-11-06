@@ -7,7 +7,9 @@ import math
 def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
-def weighted_loss(y_gt, y_pred, weighting=None, alpha=.9, loss_fn=torch.nn.MSELoss(reduction='none')):
+def weighted_loss(y_gt, y_pred, weighting=None, alpha=.9, loss_fn=torch.nn.BCELoss(reduction='none')
+    # loss_fn=torch.nn.MSELoss(reduction='none')
+    ):
     weight = np.ones(y_gt.shape)
     for i in range(weight.shape[0]):
         if weighting is None:
