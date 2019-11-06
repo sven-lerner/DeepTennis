@@ -4,6 +4,12 @@ import random
 from dataloaders.valid_data_fields import *
 import numpy as np
 
+
+'''
+data loading utilities, for the most part these guys deal with extracting information from the csvs as well as dealing with some 
+'qirks' in the data
+'''
+
 def parse_time(time_string):
     hr, m, s = [int(x) for x in time_string.split(':')]
     return 3600*hr + 60 * m + s

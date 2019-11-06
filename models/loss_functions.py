@@ -5,6 +5,7 @@ import numpy as np
 import math
 
 def sigmoid(x):
+    #aware this is hidiously inneficient, will improve when training on aws when speed = $$
     return 1 / (1 + math.exp(-x))
 
 def weighted_loss(y_gt, y_pred, weighting=None, alpha=.9, loss_fn=torch.nn.BCELoss(reduction='none')

@@ -27,6 +27,8 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f'torch device is {device}')
 loss_fn = weighted_loss
 
+#basic training loop for local development
+
 for epoch in range(num_epochs):
     epoch_start = time.time()
     losses = []

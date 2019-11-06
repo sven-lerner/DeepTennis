@@ -52,6 +52,8 @@ valid_fields = {
 # 'P2TurningPoint'
 }
 
+#usually the better seed is player 1, so we randomly shuffle who is p1 vs p2 during training so the 
+#net does not develop a bias towards seeding
 shuffle_pairs = {
     ('P1GamesWon','P2GamesWon'),
     ('P1BreakPointMissed','P2BreakPointMissed'),
