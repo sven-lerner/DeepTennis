@@ -12,14 +12,15 @@ def weighted_loss(y_gt, y_pred, weighting=None, alpha=.9, loss_fn=torch.nn.BCELo
     # loss_fn=torch.nn.MSELoss(reduction='none')
     ):
     weight = np.ones(y_gt.shape)
-    for i in range(weight.shape[0]):
+    m = weight.shape[1]
+    for i in range(m):
         if weighting is None:
-            weight[i] = weight[i]*sigmoid((.1 + .9*(i/weight.shape[0])) - 0.5)
+            weight[:,i] = weight[:,i]*sigmoid((i - 3*m/4)*10/m)
+        #     weight[:,i] = 1 - (1/((99/m)*i + 1))
         else:
             weight[i] = weight[i]*weighting
     weight = torch.from_numpy(weight)
-    pointwise_loss = weight * loss_fn(y_gt, y_pred)
-    
+    pointwise_loss = weight * loss_fn(y_pred.unsqueeze(0), y_gt)
     # assert np.sum(torch.isnan(pointwise_loss).detach().numpy()) < 1, "hit a nan"
 
     return torch.sum(pointwise_loss)

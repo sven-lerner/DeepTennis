@@ -1,4 +1,5 @@
 from dataloaders.loader_utils import get_data
+import torch
 
 class YearOpenSplitLoader:
 	'''loads data for specific grand slams and year,
@@ -16,3 +17,20 @@ class YearOpenSplitLoader:
 
 	def get_test_data(self, shuffle=False):
 		return self.test_data
+
+
+from torch.utils.data import Dataset
+
+class YearOpenSplitDataSet(Dataset):
+
+	def __init__(self, slam_years):
+		self.data = get_data(slam_years)
+
+	def __len__(self):
+		return len(self.data)
+
+	def __getitem__(self, idx):
+		if torch.is_tensor(idx):
+			idx = idx.tolist()
+		return self.data[idx]
+

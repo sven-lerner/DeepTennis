@@ -24,7 +24,8 @@ class TennisLSTM(nn.Module):
                 torch.zeros(self.num_layers, self.batch_size, self.hidden_dim))
 
     def forward(self, input):
-        lstm_out, self.hidden = self.lstm(input.view(len(input), self.batch_size, -1))
+        # lstm_out, self.hidden = self.lstm(input.view(len(input), self.batch_size, -1))
+        lstm_out, self.hidden = self.lstm(input)
         
         # assert np.sum(torch.isnan(lstm_out).detach().numpy()) < 1, "hit a nan"
         linear_output = self.linear(lstm_out)
