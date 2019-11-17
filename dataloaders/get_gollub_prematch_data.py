@@ -63,7 +63,7 @@ def merge_tourney(year, tourney, gollub, prob_cols):
 def merge_gollub_data():
     
     #load main gollub data
-    gollub = pd.read_csv("data/gollubdata/elo_atp_matches_all_10_29.txt")
+    gollub = pd.read_csv("data/gollubdata/elo_atp_matches_all_10_29.csv")
     
     #save appropriate columns
     id_cols = ['tny_name', 'match_year', 'p0_name', 'p1_name']
@@ -88,3 +88,4 @@ def merge_gollub_data():
     for year in years_2:
         for tourney in tourneys_2:
             merge_tourney(year, tourney, gollub, prob_cols)
+merge_gollub_data()
