@@ -8,14 +8,15 @@ def sigmoid(x):
     #aware this is hidiously inneficient, will improve when training on aws when speed = $$
     return 1 / (1 + math.exp(-x))
 
-def weighted_loss(y_gt, y_pred, weighting=None, alpha=.9, loss_fn=torch.nn.BCELoss(reduction='none')
-    # loss_fn=torch.nn.MSELoss(reduction='none')
+def weighted_loss(y_gt, y_pred, weighting=None, alpha=.9, #loss_fn=torch.nn.BCELoss(reduction='none')
+    loss_fn=torch.nn.MSELoss(reduction='none')
     ):
     weight = np.ones(y_gt.shape)
     m = weight.shape[1]
     for i in range(m):
         if weighting is None:
-            weight[:,i] = weight[:,i]*sigmoid((i - 3*m/4)*10/m)
+            weight[:,i] = weight[:,i]*(i/m)
+            # weight[:,i] = weight[:,i]*sigmoid((i - 3*m/4)*10/m)
         #     weight[:,i] = 1 - (1/((99/m)*i + 1))
         else:
             weight[i] = weight[i]*weighting

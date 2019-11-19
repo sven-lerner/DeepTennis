@@ -32,8 +32,10 @@ def extract_numpy_from_match(match_points, shuffle_players=False):
     scores = scores[~np.isnan(scores).any(axis=1)]
     assert np.sum(np.isnan(scores)) < 1, f"hit a nan {scores}"
     return scores
+
+
     
-def get_match_data(match_id, match_data, point_data, soften_curve):
+def get_match_data(match_id, match_data, point_data, prematch_probs, soften_curve):
     shuffle_players = random.uniform(0, 1) > 0.5
     winner = match_data.loc[match_data['match_id'] == match_id].iloc[0]['winner'] - 1
     point_data = point_data.loc[point_data['match_id'] == match_id]
@@ -47,6 +49,9 @@ def get_match_data(match_id, match_data, point_data, soften_curve):
     
     if shuffle_players:
         winner = (winner + 1) % 2
+        prematch_probs = 1 - prematch_probs
+
+    prematch_probs[np.isnan(prematch_probs)]=0.5
 
     parsed_point_data = extract_numpy_from_match(point_data, shuffle_players)
     num_points = parsed_point_data.shape[0]
@@ -69,11 +74,19 @@ def get_match_data(match_id, match_data, point_data, soften_curve):
                 else:
                     y_gt[i] = 0.5
     
-    return parsed_point_data, y_gt
+    return parsed_point_data, prematch_probs, y_gt
 
-def get_training_data_from_open(open_matches_path, open_points_path, get_match_info=False):
+    def get_prematch_probs(match_id, gollub_prematch_probs):
+        probs = gollub_prematch_probs.iloc[gollub_prematch_probs['match_id'] == match_id][0]
+        return 
+
+def get_training_data_from_open(open_matches_path, open_points_path, gollub_prematch_path, get_match_info=False):
     matches = pd.read_csv(open_matches_path) 
+    matches = matches.loc[matches['status'] != 'Retired']
+    # print(len(matches))   
     points = pd.read_csv(open_points_path) 
+
+    golub_probs = pd.read_csv(gollub_prematch_path) 
 
     # non_nan_matches = open_matches[open_matches['winner'].isin([1,2])]
     data = []
@@ -81,15 +94,16 @@ def get_training_data_from_open(open_matches_path, open_points_path, get_match_i
 
     for match_id in matches['match_id']:
         try:
-            t_data, label = get_match_data(match_id, matches, points, soften_curve=False)
+            prematch_probs = golub_probs.loc[golub_probs['match_id_x'] == match_id][prematch_fields].iloc[0].to_numpy(dtype=np.float)
+            t_data, prematch_probs, label = get_match_data(match_id, matches, points, prematch_probs, soften_curve=False)
             if get_match_info:
                 p1 = matches.loc[matches['match_id'] == match_id]['player1'].iloc[0]
                 p2 = matches.loc[matches['match_id'] == match_id]['player2'].iloc[0]
                 winner = matches.loc[matches['match_id'] == match_id]['winner'].iloc[0]
-                data.append([t_data, label, f'{p1} vs {p2} winner was {winner}'])
+                data.append([t_data, prematch_probs, label, f'{p1} vs {p2} winner was {winner}'])
             else:
-                data.append([t_data, label])
-        except:
+                data.append([t_data, prematch_probs, label])
+        except Exception as e:
             dropped_matches += 1
     print(f'dropped {dropped_matches} matches')
     return data
@@ -102,6 +116,7 @@ def get_data(open_years):
     for open_year in open_years:
         matches_path = os.path.join(data_base_path, f'{open_year}-matches.csv')
         points_path = os.path.join(data_base_path, f'{open_year}-points.csv')
-        data += get_training_data_from_open(matches_path, points_path)
+        gollub_prematch__path = os.path.join(data_base_path, 'gollubdata', f'gollub-prematch-{open_year}.csv')
+        data += get_training_data_from_open(matches_path, points_path, gollub_prematch__path)
     return data
 

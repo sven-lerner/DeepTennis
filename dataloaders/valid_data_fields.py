@@ -52,6 +52,23 @@ valid_fields = {
 # 'P2TurningPoint'
 }
 
+prematch_fields = {
+    'logit_elo_538_prob',
+    'logit_elo_prob',
+    'logit_elo_diff_prob',
+    'logit_elo_diff_538_prob',
+    'match_prob_kls',
+    'match_prob_kls_JS',
+    'match_prob_sf_kls',
+    'match_prob_sf_kls_JS',
+    'match_prob_adj_kls',
+    'match_prob_adj_kls_JS',
+    'elo_prob',
+    'elo_prob_538',
+    'sf_elo_prob',
+    'sf_elo_prob_538'
+}
+
 #usually the better seed is player 1, so we randomly shuffle who is p1 vs p2 during training so the 
 #net does not develop a bias towards seeding
 shuffle_pairs = {
