@@ -1,4 +1,4 @@
-from dataloaders.loader_utils import get_data
+from dataloaders.loader_utils import get_final_data
 import torch
 
 class YearOpenSplitLoader:
@@ -24,7 +24,7 @@ from torch.utils.data import Dataset
 class YearOpenSplitDataSet(Dataset):
 
 	def __init__(self, slam_years):
-		self.data = get_data(slam_years)
+		self.data = get_final_data(slam_years)
 
 	def __len__(self):
 		return len(self.data)
