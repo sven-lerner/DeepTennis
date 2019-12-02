@@ -1,14 +1,14 @@
-valid_fields = {
+valid_fields = ['match_id', 'player1', 'player2', 'winner',
 # 'ElapsedTime',
-# 'SetNo',
+'SetNo',
 'P1GamesWon',
 'P2GamesWon',
-# 'SetWinner',
-# 'GameNo',
-# 'GameWinner',
-# 'PointNumber',
-# 'PointWinner',
-# 'PointServer',
+'SetWinner',
+'GameNo',
+'GameWinner',
+'PointNumber',
+'PointWinner',
+'PointServer',
 # 'Speed_KMH',
 # 'Rally',
 'P1Score',
@@ -44,13 +44,20 @@ valid_fields = {
 # 'P1ForcedError',
 # 'P2ForcedError',
 # 'History',
-# 'Speed_MPH',
+ 'Speed_MPH',
+ 'RallyCount',
+    'P1DistanceRun',
+    'P2DistanceRun',
 # 'P1BreakPointMissed',
 # 'P2BreakPointMissed',
 # 'ServeIndicator',
-# 'P1TurningPoint', 
-# 'P2TurningPoint'
-}
+# 'P1TurningPoint',
+# 'P2TurningPoint',
+    'p1_sets_to_win',
+    'p2_sets_to_win',
+    'p1_games_to_win',
+    'p2_games_to_win',
+]
 
 #usually the better seed is player 1, so we randomly shuffle who is p1 vs p2 during training so the 
 #net does not develop a bias towards seeding
