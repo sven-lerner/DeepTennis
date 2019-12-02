@@ -78,7 +78,7 @@ for epoch in range(num_epochs):
         X_train, prematch_probs, y_train  = data 
         X_train = X_train.float().to(device)
         y_train = y_train.float().to(device)
-        prematch_probs = prematch_probs.float()
+        prematch_probs = prematch_probs.float().to(device)
         # print(model.hidden)
         # model.hidden = model.init_hidden(prematch_probs)
         model.set_prematch_probs(prematch_probs)
