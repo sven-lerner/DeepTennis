@@ -1,4 +1,6 @@
+
 valid_fields = [
+# 'match_id', 'player1', 'player2', 'winner',
 # 'ElapsedTime',
 'SetNo',
 'P1GamesWon',
@@ -44,16 +46,21 @@ valid_fields = [
 # 'P1ForcedError',
 # 'P2ForcedError',
 # 'History',
-# 'Speed_MPH',
+ 'Speed_MPH',
+ 'RallyCount',
+    'P1DistanceRun',
+    'P2DistanceRun',
 # 'P1BreakPointMissed',
 # 'P2BreakPointMissed',
 # 'ServeIndicator',
 # 'P1TurningPoint', 
+# 'P1TurningPoint',
 # 'P2TurningPoint',
     'p1_sets_to_win',
     'p2_sets_to_win',
     'p1_games_to_win',
-    'p2_games_to_win'
+
+    'p2_games_to_win',
 ]
 
 prematch_fields = [

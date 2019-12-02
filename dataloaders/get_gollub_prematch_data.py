@@ -58,12 +58,12 @@ def merge_tourney(year, tourney, gollub, prob_cols):
     keep_cols = ['match_id_x', 'year_x', 'slam_x', 'match_num_x', 'player1', 'player2'] + prob_cols
     total_df = total_df[keep_cols].rename({'match_id_x': 'match_id', 'year_x': 'year', 'slam_x': 'slam', 'match_num_x': 'match_num'})
     total_df.fillna(0.5)
-    total_df.to_csv('data/gollubdata/gollub-prematch-' + str(year) + '-' + tourney + '.csv')
+    total_df.to_csv('../data/gollubdata/gollub-prematch-' + str(year) + '-' + tourney + '.csv')
     
 def merge_gollub_data():
     
     #load main gollub data
-    gollub = pd.read_csv("data/gollubdata/elo_atp_matches_all_10_29.csv")
+    gollub = pd.read_csv("../data/gollubdata/elo_atp_matches_all_10_29.csv")
     
     #save appropriate columns
     id_cols = ['tny_name', 'match_year', 'p0_name', 'p1_name']
