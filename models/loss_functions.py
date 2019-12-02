@@ -8,7 +8,7 @@ def sigmoid(x):
     #aware this is hidiously inneficient, will improve when training on aws when speed = $$
     return 1 / (1 + math.exp(-x))
 
-def weighted_loss(y_gt, y_pred, weighting=None, alpha=.9, #loss_fn=torch.nn.BCELoss(reduction='none')
+def weighted_loss(y_gt, y_pred, device, weighting=None, alpha=.9, #loss_fn=torch.nn.BCELoss(reduction='none')
     loss_fn=torch.nn.MSELoss(reduction='none')
     ):
     weight = np.ones(y_gt.shape)
@@ -21,7 +21,7 @@ def weighted_loss(y_gt, y_pred, weighting=None, alpha=.9, #loss_fn=torch.nn.BCEL
             pass
         else:
             weight[i] = weight[i]*weighting
-    weight = torch.from_numpy(weight)
+    weight = torch.from_numpy(weight).to(device)
     pointwise_loss = weight * loss_fn(y_pred.unsqueeze(0), y_gt)
     # assert np.sum(torch.isnan(pointwise_loss).detach().numpy()) < 1, "hit a nan"
 

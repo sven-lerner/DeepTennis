@@ -59,6 +59,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
 scheduler = MultiStepLR(optimizer, [20, 30], gamma=0.1, last_epoch=-1)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f'torch device is {device}')
+model = model.to(device)
 loss_fn = weighted_loss
 # loss_fn = auto_weighted_loss
 
@@ -75,15 +76,15 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch}')
     for i, data in enumerate(train_data_loader):
         X_train, prematch_probs, y_train  = data 
-        X_train = X_train.float()
-        y_train = y_train.float()
+        X_train = X_train.float().to(device)
+        y_train = y_train.float().to(device)
         prematch_probs = prematch_probs.float()
         # print(model.hidden)
         # model.hidden = model.init_hidden(prematch_probs)
         model.set_prematch_probs(prematch_probs)
         
         y_pred, mask = model(X_train)
-        loss = loss_fn(y_train, y_pred)
+        loss = loss_fn(y_train, y_pred, device)
         # loss = loss_fn(y_train, y_pred, mask, mask_weight=5 + num_epochs // 10)
 
         loss.backward()
@@ -96,7 +97,7 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch} took {(time.time() - epoch_start)/60.0} minutes')
     if epoch % eval_freq  == 0:
     	eval_start_time = time.time()
-    	interval_metrics = get_interval_success_rates(model, val_data_loader)
+    	interval_metrics = get_interval_success_rates(model, val_data_loader, device)
     	model_info['eval_data'].append(interval_metrics)
     	print(f'epoch {epoch} eval took {(time.time() - eval_start_time)/60.0} minutes')
     scheduler.step()
@@ -115,7 +116,7 @@ if save_model:
 
 	from test_model import test_my_model
 
-	test_my_model(save_path, test_slam_years, model_info)
+	test_my_model(save_path, test_slam_years, model_info, device)
 
 
 

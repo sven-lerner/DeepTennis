@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 
-def get_interval_success_rates(model, loader, intervals=[0.5, 0.75, 1]):
+def get_interval_success_rates(model, loader, device, intervals=[0.5, 0.75, 1]):
 	m = len(loader)
 	print(f'testing on {m} examples')
 	correct = [0 for _ in intervals]
@@ -11,10 +11,10 @@ def get_interval_success_rates(model, loader, intervals=[0.5, 0.75, 1]):
 	ret_strings = []
 	for i, test_example in enumerate(loader):
 		x, prematch_probs, y = test_example
-		prematch_probs = prematch_probs.float()
+		prematch_probs = prematch_probs.float().to(device)
 		model.set_prematch_probs(prematch_probs)
 		# x, y, debug_string = test_example
-		x = x.float()
+		x = x.float().to(device)
 		y = y.float().cpu().detach().numpy().squeeze()
 		preds = model(x)[0].cpu().detach().numpy().squeeze()
 
