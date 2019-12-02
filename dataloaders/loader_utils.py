@@ -3,6 +3,8 @@ import pandas as pd
 import random
 from dataloaders.valid_data_fields import *
 import numpy as np
+import logging
+
 
 
 '''
@@ -11,13 +13,18 @@ data loading utilities, for the most part these guys deal with extracting inform
 '''
 
 def parse_time(time_string):
+    # print(time_string)
     hr, m, s = [int(x) for x in time_string.split(':')]
     return 3600*hr + 60 * m + s
 
-def extract_numpy_from_match(match_points, shuffle_players=False):
+def extract_numpy_from_match(match_points, shuffle_players):
     
+    match_points['PointServer'] = match_points['PointServer'] % 2
+
     match_points_copy = match_points.copy()
+
     if shuffle_players:
+        match_points['PointServer'] = (match_points['PointServer'] + 1) % 2
         for p1_val, p2_val in shuffle_pairs:
             tmp = match_points_copy[p1_val]
             match_points_copy[p1_val] = match_points_copy[p2_val]
@@ -26,27 +33,54 @@ def extract_numpy_from_match(match_points, shuffle_players=False):
     parsed_time['ElapsedTime'] = parsed_time['ElapsedTime'].map(lambda x: parse_time(x))
     parsed_scores = parsed_time.replace('AD', 55)
     
-    
-    scores = parsed_scores[list(valid_fields)].to_numpy(dtype=np.float)
+    scores = parsed_scores[valid_fields].to_numpy(dtype=np.float)
     # scores = scores.fillna(0)
-    scores = scores[~np.isnan(scores).any(axis=1)]
     assert np.sum(np.isnan(scores)) < 1, f"hit a nan {scores}"
+    # scores = scores[~np.isnan(scores).any(axis=1)]
     return scores
 
 
+def populate_sets_to_win(match_points, mens):
+    match_points = match_points.sort_values('PointNumber')
+    net_p1_set_wins = len(match_points.loc[match_points['SetWinner'] == 1])
+    net_p2_set_wins = len(match_points.loc[match_points['SetWinner'] == 2])
+        
+    matches_to_win = max(net_p1_set_wins, net_p2_set_wins)
+    p1_set_wins = 0
+    p2_set_wins = 0
+    for i, row in match_points.iterrows():
+        if row['SetWinner'] == 1:
+            p1_set_wins += 1
+        elif row['SetWinner'] == 2:
+            p2_set_wins += 1
+        
+        p1_games_to_win =  max((matches_to_win - p1_set_wins) * 6 - max(row['P1GamesWon'], 5), 0)
+        p2_games_to_win =  max((matches_to_win - p2_set_wins) * 6 - max(row['P2GamesWon'], 5), 0)
+
+        match_points.at[i, 'p1_sets_to_win']= matches_to_win - p1_set_wins
+        match_points.at[i, 'p2_sets_to_win'] = matches_to_win - p2_set_wins
+
+        match_points.at[i, 'p1_games_to_win']= p1_games_to_win
+        match_points.at[i, 'p2_games_to_win'] = p2_games_to_win
+
+    return match_points
+
     
 def get_match_data(match_id, match_data, point_data, prematch_probs, soften_curve):
-    shuffle_players = random.uniform(0, 1) > 0.5
+    shuffle_players = False #random.uniform(0, 1) > 0.5
+    match_info = match_data.loc[match_data['match_id'] == match_id].iloc[0]
     winner = match_data.loc[match_data['match_id'] == match_id].iloc[0]['winner'] - 1
     point_data = point_data.loc[point_data['match_id'] == match_id]
 
-    if winner not in [1,2]:
+    if winner not in [0,1,2]:
         last_point = point_data.sort_values('PointNumber').iloc[-1]
         last_point_winner = last_point['PointWinner']
         last_game_winner = last_point['GameWinner']
         assert last_point_winner == last_game_winner, f'{last_point_winner} was not {last_game_winner}'
         winner = last_point_winner - 1
-    
+    # print(match_info) 'Men\'s' in match_info['event_name']
+    point_data = populate_sets_to_win(point_data, shuffle_players)
+
     if shuffle_players:
         winner = (winner + 1) % 2
         prematch_probs = 1 - prematch_probs
@@ -104,13 +138,28 @@ def get_training_data_from_open(open_matches_path, open_points_path, gollub_prem
             else:
                 data.append([t_data, prematch_probs, label])
         except Exception as e:
+            # logging.exception(e)
             dropped_matches += 1
     print(f'dropped {dropped_matches} matches')
     return data
 
 
+def normalize_data(input_data):
+    stacked_data = np.concatenate([x[0] for x in input_data])
+    print(type(stacked_data[0][0]))
+    print(stacked_data.shape)
+    mean = np.mean(stacked_data, axis=0)
+    print(mean.shape)
+    std = np.std(stacked_data, axis=0)
+
+    for i, x in enumerate(input_data):
+        normalized = (x[0] - mean) / std
+        input_data[i][0] = normalized
+    return input_data
+
+
 data_base_path= 'data/'
-def get_data(open_years):
+def get_data(open_years, normalize=False):
     data = []
     print(open_years)
     for open_year in open_years:
@@ -118,5 +167,7 @@ def get_data(open_years):
         points_path = os.path.join(data_base_path, f'{open_year}-points.csv')
         gollub_prematch__path = os.path.join(data_base_path, 'gollubdata', f'gollub-prematch-{open_year}.csv')
         data += get_training_data_from_open(matches_path, points_path, gollub_prematch__path)
+    if normalize:
+        data = normalize_data(data)
     return data
 
