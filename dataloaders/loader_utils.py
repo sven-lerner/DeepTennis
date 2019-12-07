@@ -174,13 +174,13 @@ def parse_time(time_string):
 
 
 data_base_path= 'data/'
-def get_final_data(open_years, normalize=False):
+def get_final_data(open_years, get_match_info=False, normalize=False):
     data = []
     print(open_years)
     for open_year in open_years:
         parsed_csv_path = os.path.join(data_base_path, 'final_data', f'{open_year}-points-final.csv')
         gollub_prematch__path = os.path.join(data_base_path, 'gollubdata', f'gollub-prematch-{open_year}.csv')
-        data += get_training_data_from_parsed_csvs(parsed_csv_path, gollub_prematch__path)
+        data += get_training_data_from_parsed_csvs(parsed_csv_path, gollub_prematch__path, get_match_info)
     if normalize:
         data = normalize_data(data)
     return data
@@ -202,10 +202,10 @@ def get_training_data_from_parsed_csvs(parsed_points_path, gollub_prematch_path,
             prematch_probs = golub_probs.loc[golub_probs['match_id_x'] == match_id][prematch_fields].iloc[0].to_numpy(dtype=np.float)
             t_data, prematch_probs, label = get_parsed_match_data(match_id, match_data, prematch_probs)
             if get_match_info:
-                p1 = matches.loc[matches['match_id'] == match_id]['player1'].iloc[0]
-                p2 = matches.loc[matches['match_id'] == match_id]['player2'].iloc[0]
-                winner = matches.loc[matches['match_id'] == match_id]['winner'].iloc[0]
-                data.append([t_data, prematch_probs, label, f'{p1} vs {p2} winner was {winner}'])
+                p1 = match_data['player1'].iloc[0]
+                p2 = match_data['player2'].iloc[0]
+                winner = match_data['winner'].iloc[0]
+                data.append([t_data, prematch_probs, label, f'{p1} vs {p2} winner was {winner}, {match_id}'])
             else:
                 data.append([t_data, prematch_probs, label])
         except Exception as e:

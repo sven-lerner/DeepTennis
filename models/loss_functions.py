@@ -25,8 +25,13 @@ def weighted_loss(y_gt, y_pred, device, weighting=None, alpha=.9, #loss_fn=torch
     pointwise_loss = weight * loss_fn(y_pred.unsqueeze(0), y_gt)
     # assert np.sum(torch.isnan(pointwise_loss).detach().numpy()) < 1, "hit a nan"
 
-    return torch.sum(pointwise_loss)
-    
+    return torch.sum(pointwise_loss) + smooth_loss(y_pred, 3)
+
+def smooth_loss(y_pred, weight):
+    delta = y_pred[1:] - y_pred[:-1]
+    return torch.sum(delta) * weight
+
+
 def auto_weighted_loss(y_gt, y_pred, mask, mask_weight, loss_fn=torch.nn.MSELoss(reduction='none')):
     pointwise_loss = torch.sum(mask * loss_fn(y_pred.unsqueeze(0), y_gt))
     explainability_loss = torch.norm(1-mask, p=2) * mask_weight

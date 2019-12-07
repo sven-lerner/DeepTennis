@@ -1,5 +1,5 @@
 import numpy as np
-from models.tennis_lstm import TennisLSTM
+from models.tennis_lstm import TennisLSTM, TennisGRUNet
 from models.loss_functions import weighted_loss, auto_weighted_loss
 import time
 import torch
@@ -19,18 +19,19 @@ batch_size = 1
 save_model = True
 SAVE_PATH = 'saved_models/tennis_lstm'
 
-model_info = {'input_dim':len(valid_fields), 'hidden_dim':50, 
+model_info = {'input_dim':len(valid_fields), 'hidden_dim':25, 
 			  'batch_size': batch_size, 
 			  'predict_mask':True, 
 			  'num_layers':2}
 
 model = TennisLSTM(**model_info)
+model = TennisGRUNet(**model_info)
 
 train_slam_years=['2011-ausopen', '2011-frenchopen', '2011-usopen', '2011-wimbledon',
-				  # '2012-ausopen', '2012-frenchopen', '2012-usopen', '2012-wimbledon',
-				  # '2013-ausopen', '2013-frenchopen', '2013-usopen', '2013-wimbledon',
-				  # '2015-ausopen', '2015-frenchopen', '2015-usopen', '2015-wimbledon',
-				  # '2016-ausopen', '2016-frenchopen', '2016-usopen', '2016-wimbledon',
+				  '2012-ausopen', '2012-frenchopen', '2012-usopen', '2012-wimbledon',
+				  '2013-ausopen', '2013-frenchopen', '2013-usopen', '2013-wimbledon',
+				  '2015-ausopen', '2015-frenchopen', '2015-usopen', '2015-wimbledon',
+				  '2016-ausopen', '2016-frenchopen', '2016-usopen', '2016-wimbledon',
 				  ]
 val_slam_years = ['2017-ausopen', '2017-frenchopen', '2017-usopen', '2017-wimbledon']
 
@@ -53,7 +54,6 @@ num_epochs = 21
 eval_freq = 10
 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
-# optimizer = optim.SGD(model.parameters(), lr=0.0001)
 
 
 scheduler = MultiStepLR(optimizer, [20, 30], gamma=0.1, last_epoch=-1)
@@ -88,11 +88,11 @@ for epoch in range(num_epochs):
         # loss = loss_fn(y_train, y_pred, mask, mask_weight=5 + num_epochs // 10)
 
         loss.backward()
-        # if i % 10 == 0: # janky batches
+        losses.append(loss.data.numpy())
         optimizer.step()
         model.zero_grad()
         optimizer.zero_grad()       
-        losses.append(loss.data.numpy())
+        
     print(f'epoch {epoch} avg loss {np.mean(losses)}')
     print(f'epoch {epoch} took {(time.time() - epoch_start)/60.0} minutes')
     if epoch % eval_freq  == 0:

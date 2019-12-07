@@ -1,8 +1,8 @@
 import torch
 import numpy as np
+from dataloaders.valid_data_fields import valid_fields
 
-
-def get_interval_success_rates(model, loader, device, intervals=[0.5, 0.75, 1]):
+def get_interval_success_rates(model, loader, device, intervals=[0.25, 0.5, 0.75, 1]):
 	m = len(loader)
 	print(f'testing on {m} examples')
 	correct = [0 for _ in intervals]
