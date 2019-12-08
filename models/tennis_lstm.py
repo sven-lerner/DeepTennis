@@ -4,10 +4,12 @@ import pandas as pd
 import torch
 import torch.nn as nn
 
-#very vanilla lstm
-
+#LSTM with variable length stack of modules, 1 linear output layer with sigmoid activation
 class TennisLSTM(nn.Module):
 
+    #input dim: dimension size of hidden state
+    #num_layer: number of lstms in stack
+    #predict mask, whether or not to predict confidence mask
     def __init__(self, input_dim, hidden_dim, batch_size,
                     num_layers=1, predict_mask=False, **kwargs):
         super(TennisLSTM, self).__init__()
@@ -33,6 +35,7 @@ class TennisLSTM(nn.Module):
         return (torch.zeros(self.num_layers, self.batch_size, self.hidden_dim).to(self.device),
             torch.zeros(self.num_layers, self.batch_size, self.hidden_dim).to(self.device))
     
+    #assume that entire match is fed in in each input, initialize hidden state and propogate match 
     def forward(self, input):
         prematch_probs = self.prematch_probs.repeat(1,input.shape[1],1)
         input = torch.cat((input, prematch_probs), 2).transpose_(0, 1)
@@ -48,6 +51,7 @@ class TennisLSTM(nn.Module):
             return out.view(-1)
 
 
+#GRU with variable length stack of modules, 1 linear output layer with sigmoid activation
 class TennisGRUNet(nn.Module):
     def __init__(self, input_dim, hidden_dim, batch_size,
                     num_layers=1, predict_mask=False, **kwargs):

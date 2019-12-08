@@ -2,6 +2,8 @@ import torch
 import numpy as np
 from dataloaders.valid_data_fields import valid_fields
 
+#calculates basic metrics for the model on the given dataloader
+#correctly predicted matches at each interval in intervals
 def get_interval_success_rates(model, loader, device, intervals=[0.25, 0.5, 0.75, 1]):
 	m = len(loader)
 	print(f'testing on {m} examples')

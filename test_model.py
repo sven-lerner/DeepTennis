@@ -21,5 +21,6 @@ def test_my_model(save_path, test_slam_years, model_info, device):
 	test_data_loader = DataLoader(test_data_set, batch_size=1, shuffle=True, num_workers=4)
 	model = TennisLSTM(**model_info)
 	model.load_state_dict(torch.load(save_path))
+	model = model.to(device)
 	model.eval()
 	interval_metrics = get_interval_success_rates(model, test_data_loader, device)

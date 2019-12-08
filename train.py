@@ -25,7 +25,6 @@ model_info = {'input_dim':len(valid_fields), 'hidden_dim':25,
 			  'num_layers':2}
 
 model = TennisLSTM(**model_info)
-model = TennisGRUNet(**model_info)
 
 train_slam_years=['2011-ausopen', '2011-frenchopen', '2011-usopen', '2011-wimbledon',
 				  '2012-ausopen', '2012-frenchopen', '2012-usopen', '2012-wimbledon',
@@ -68,7 +67,6 @@ model_info['loss_function'] = loss_fn.__name__
 model_info['eval_data'] = []
 
 #basic training loop for local development
-
 for epoch in range(num_epochs):
     epoch_start = time.time()
     losses = []
@@ -79,8 +77,6 @@ for epoch in range(num_epochs):
         X_train = X_train.float().to(device)
         y_train = y_train.float().to(device)
         prematch_probs = prematch_probs.float().to(device)
-        # print(model.hidden)
-        # model.hidden = model.init_hidden(prematch_probs)
         model.set_prematch_probs(prematch_probs)
         
         y_pred, mask = model(X_train)
