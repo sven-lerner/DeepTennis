@@ -20,7 +20,7 @@ Contains model infrastructure file and loss function helpers. Used to create a m
 
 ### Notebooks
 
-Initial data/model exploration notebook that contains rudimentary win-probability graphs from initial model training.
+Data exploration, debugging, and results analysis notebooks.
 
 ### Saved Models
 
